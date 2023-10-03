@@ -1,0 +1,4 @@
+﻿  InputKeyboard.cpp
+C:\Users\boygioi15\Desktop\SDL Projects\Projects holder\Graph drawer\Header Files\CalculatorText_RenderHelper.h(91): warning C4091: 'inline static ': ignored on left of 'CalculatorText_RenderHelper::LETTERS' when no variable is declared
+C:\Users\boygioi15\Desktop\SDL Projects\Projects holder\Graph drawer\Source Files\Interface\InputKeyboard.cpp(381): warning C4715: 'cInputKeyboard::handleResizeButtonEvent': not all control paths return a value
+  Graph drawer.vcxproj -> C:\Users\boygioi15\Desktop\SDL Projects\Projects holder\SDL Projects\x64\Debug\Graph drawer.exe

@@ -1,0 +1,10 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\users\\boygioi15\\desktop\\sdl projects\\projects holder\\graph drawer\\header files\\module.ixx",
+        "ProvidedModule": "$safeitemname$",
+        "Includes": [],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

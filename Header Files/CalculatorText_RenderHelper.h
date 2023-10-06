@@ -5,34 +5,20 @@
 #include <SDL_FullLibraries.h>
 #include <GUI.h>
 
-class CalculatorText_RenderHelper : public cComponent {
+class CalculatorText_RenderHelper{
 public:
-	CalculatorText_RenderHelper();
 	static void setWindowMaster(cWindow* window);
 	static bool loadMedia();
+	static void setUp();
 
-	void setCalCulatorText(CalculatorText* content);
-
-	void toggleRenderCursorBarOn();
-	void toggleRenderCursorBarOff();
-
-	void updateRenderContent();
-	void showRenderContent();
-	void clearRenderContent();
+	static cTexture* createTextureFromCalculatorText(CalculatorText& text);
+	static void renderCursorBarWithArea(SDL_Rect& referenceRect, CalculatorText &text);
+	static void renderTextureWithArea(SDL_Rect& referenceRect, cTexture* texture);
 
 private:
 	static cWindow* windowMaster;
-	CalculatorText* content;
+	static cImage cursorBar;
 
-	static cTexture cursorBarSharedTexture;
-	cImage cursorBar;
-	//store only horizontal
-	vector<int> cursorBarPosition;
-	bool cursorBarPhase;
-	int cursorBarValue;
-	bool renderCursorBar;
-
-	cTexture renderContent;
 	static inline enum LETTERS {
 		//NUMBER
 		NUMBER_0,
@@ -91,7 +77,7 @@ private:
 	};
 	static inline cTexture loadedTexture[LETTERS_TOTAL];
 
-	int getLetterCode(char c);
+	static int getLetterCode(char c);
 };
 
 #endif // !CALCULATORTEXT_RENDERHELPER

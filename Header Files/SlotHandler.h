@@ -5,13 +5,14 @@
 #include "Interface.h"
 #include "CalculatorText.h"
 #include "CalculatorText_RenderHelper.h"
+
 class cSlotHandler : public cInterface {
 public:
     cSlotHandler();
     void setWindowMaster(cWindow* window);
     bool loadMedia();
     void setUp();
-    void handleEvent(SDL_Event& e);
+    void handleEvent(SDL_Event& e); 
 
     void updateRenderContent();
     void showRenderContent();
@@ -40,6 +41,7 @@ private:
     };
     struct cSlot : public cButton {
         cSlot();
+        ~cSlot();
         void setWindowMaster(cWindow* window);
         SlotEventCode handleEvent(SDL_Event& e);
 
@@ -49,13 +51,16 @@ private:
 
         void free();
 
-        bool focused;
-        cImage background, foreground;
+        bool isFocused;
+        cImage background, emptyForeground;
+        cTexture* calculatorText_RenderContent;
+        SDL_Rect calculatorText_RenderArea;
+
         cButton quitButton;
 
         CalculatorText content;
-        CalculatorText_RenderHelper contentRenderHelper;
     };
+    CalculatorText_RenderHelper calculatorText_RenderHelper;
     vector<cSlot*> slotList;
     cTexture sharedSlotBackground, sharedSlotEmptyForeground;
 

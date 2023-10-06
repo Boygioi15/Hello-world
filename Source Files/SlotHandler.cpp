@@ -13,28 +13,6 @@ void cSlotHandler::setWindowMaster(cWindow* window) {
     hideTheFirstQuitButton.setWindowMaster(window);
     CalculatorText_RenderHelper::setWindowMaster(window);
 }
-void cSlotHandler::setUp() {
-    //selected outline
-    setPosition(0,0);
-    setSize(550,1000);
-    cTexture* loadedTexture = slotSelectedOutline.getTexture();
-    int w = loadedTexture->getWidth();
-    int h = loadedTexture->getHeight();
-    slotSelectedOutline.setSize(w, h);
-
-    //glowing quitButton
-    loadedTexture = glowingQuitButton.getTexture();
-    w = loadedTexture->getWidth();
-    h = loadedTexture->getHeight();
-    glowingQuitButton.setSize(w, h);
-
-    //hide first quitButton
-    hideTheFirstQuitButton.setPosition(490, 120);
-    hideTheFirstQuitButton.setSize(40, 40);
-
-    createNewSlot(0);
-    setSlotFocus(0);
-}
 bool cSlotHandler::loadMedia() {
     /////
     if (!sharedSlotBackground.loadFromFile(cComponent::m_Window->getRenderer(), "graphList/sharedSlotBackground.png")) {
@@ -56,6 +34,29 @@ bool cSlotHandler::loadMedia() {
     sharedSlotEmptyForeground.toggleInvincibleOn();
     return true;
 }
+void cSlotHandler::setUp() {
+    //selected outline
+    setPosition(0, 0);
+    setSize(550, 1000);
+    cTexture* loadedTexture = slotSelectedOutline.getTexture();
+    int w = loadedTexture->getWidth();
+    int h = loadedTexture->getHeight();
+    slotSelectedOutline.setSize(w, h);
+
+    //glowing quitButton
+    loadedTexture = glowingQuitButton.getTexture();
+    w = loadedTexture->getWidth();
+    h = loadedTexture->getHeight();
+    glowingQuitButton.setSize(w, h);
+
+    //hide first quitButton
+    hideTheFirstQuitButton.setPosition(490, 120);
+    hideTheFirstQuitButton.setSize(40, 40);
+
+    createNewSlot(0);
+    setSlotFocus(0);
+}
+
 void cSlotHandler::handleEvent(SDL_Event& e) {
     isHoveringOverQuitButton = false;
     for (int i = 0; i < slotList.size(); i++) {
@@ -74,8 +75,8 @@ void cSlotHandler::handleEvent(SDL_Event& e) {
             if (i == 0) {
                 continue;
             }
-            deleteSlot(i);
             releaseSlotFocus();
+            deleteSlot(i);       
         }
         else if (code == FOCUS) {
             setSlotFocus(i);
@@ -88,16 +89,22 @@ void cSlotHandler::handleEvent(SDL_Event& e) {
         }
     }
 }
+
 void cSlotHandler::updateRenderContent() {
+    /*
     for (cSlot* slot : slotList) {
         slot->updateRenderContent();
     }
+    */
 }
 void cSlotHandler::showRenderContent() {
     for (cSlot* slot : slotList) {
         slot->showRenderContent();
     }
+    //render cursor of the selected slot and the selected outline
     if (currentlyFocusedSlot != -1) {
+        CalculatorText_RenderHelper::renderCursorBarWithArea(
+            slotList[currentlyFocusedSlot]->calculatorText_RenderArea, slotList[currentlyFocusedSlot]->content);
         slotSelectedOutline.render();
     }
     //hide first slot delelte button
@@ -106,10 +113,12 @@ void cSlotHandler::showRenderContent() {
     if (isHoveringOverQuitButton) {
         glowingQuitButton.render();
     }
+    
 }
 void cSlotHandler::clearRenderContent() {
     fakeRender();
 }
+
 ////INSERT, DELETING
 void cSlotHandler::createNewSlot(int pos) {
     //set Window Master
@@ -118,7 +127,7 @@ void cSlotHandler::createNewSlot(int pos) {
     newSlot->setWindowMaster(cSlotHandler::cComponent::m_Window);
     ///load media
     newSlot->background.setTexture(&sharedSlotBackground);
-    newSlot->foreground.setTexture(&sharedSlotEmptyForeground);
+    newSlot->emptyForeground.setTexture(&sharedSlotEmptyForeground);
 
     if (!slotList.size()) {
         slotList.push_back(newSlot);
@@ -135,24 +144,21 @@ void cSlotHandler::createNewSlot(int pos) {
     repositionSlot(pos);
 }
 void cSlotHandler::deleteSlot(int pos) {
+    slotList[pos]->free();
     slotList.erase(slotList.begin() + pos);
     repositionSlot(pos);
 }
 
 //FOCUS MECHANIC
 void cSlotHandler::setSlotFocus(int pos) {
-    if (currentlyFocusedSlot != -1) {
-        releaseSlotFocus();
-    }
+    releaseSlotFocus();
     currentlyFocusedSlot = pos;
+    slotList[currentlyFocusedSlot]->isFocused = true;
     slotSelectedOutline.setPosition(535, 100 + currentlyFocusedSlot * 68);
-    slotList[currentlyFocusedSlot]->focused = true;
-    slotList[currentlyFocusedSlot]->contentRenderHelper.toggleRenderCursorBarOn();
 }
 void cSlotHandler::releaseSlotFocus() {
     if (currentlyFocusedSlot != -1) {
-        slotList[currentlyFocusedSlot]->focused = false;
-        slotList[currentlyFocusedSlot]->contentRenderHelper.toggleRenderCursorBarOff();
+        slotList[currentlyFocusedSlot]->isFocused = false;
         currentlyFocusedSlot = -1;
     }
 }
@@ -162,15 +168,17 @@ void cSlotHandler::insertContentIntoFocusedSlot(std::string content) {
         return;
     }
     slotList[currentlyFocusedSlot]->content.insertAtCursor(content);
+    //update render content
+    slotList[currentlyFocusedSlot]->updateRenderContent();
     //cout << currentlyFocusedSlot << ": " << slotList[currentlyFocusedSlot]->content.getStringContent()<<endl;
     
     //
     Expression toBeSent = slotList[currentlyFocusedSlot]->content.getExpression();
     toBeSent.preProcess();
-    cout << toBeSent.getStringContent() << endl;
+    //cout << toBeSent.getStringContent() << endl;
     if (toBeSent.checkValidity()) {
         toBeSent.buildComputingTree();
-        cout << "Valid graph, ready to draw on canvas\n";
+        //cout << "Valid graph, ready to draw on canvas\n";
         graphDisplayer.insertExpressionIntoList(toBeSent);
         graphDisplayer.drawGraph();
     }
@@ -180,12 +188,13 @@ void cSlotHandler::eraseContentOfFocusedSlot() {
         return;
     }
     slotList[currentlyFocusedSlot]->content.eraseAtCursor();
+    slotList[currentlyFocusedSlot]->updateRenderContent();
 
     Expression toBeSent = slotList[currentlyFocusedSlot]->content.getExpression();
     toBeSent.preProcess();
     if (toBeSent.checkValidity()) {
         toBeSent.buildComputingTree();
-        cout << "Valid graph, ready to draw on canvas\n";
+        //cout << "Valid graph, ready to draw on canvas\n";
         graphDisplayer.insertExpressionIntoList(toBeSent);
         graphDisplayer.drawGraph();
     }
@@ -226,45 +235,56 @@ void cSlotHandler::repositionSlot(int start) {
         slotList[i]->background.setPosition(0, 100 + 68 * i);
         slotList[i]->background.setSize(sharedSlotBackground.getWidth(), sharedSlotBackground.getHeight());
 
-        slotList[i]->foreground.setPosition(70, 120 + 68 * i);
-        slotList[i]->foreground.setSize(sharedSlotEmptyForeground.getWidth(), sharedSlotEmptyForeground.getHeight());
+        slotList[i]->emptyForeground.setPosition(70, 120 + 68 * i);
+        slotList[i]->emptyForeground.setSize(sharedSlotEmptyForeground.getWidth(), sharedSlotEmptyForeground.getHeight());
 
         slotList[i]->quitButton.setPosition(500, 125 + 68 * i);
         slotList[i]->quitButton.setSize(23, 23);
 
-        slotList[i]->contentRenderHelper.setPosition(60, 112 + 68 * i);
-        slotList[i]->contentRenderHelper.setSize(400, 45);
+        slotList[i]->calculatorText_RenderArea.x = 60;
+        slotList[i]->calculatorText_RenderArea.y = 110 + 68 * i;
+        slotList[i]->calculatorText_RenderArea.w = 410;
+        slotList[i]->calculatorText_RenderArea.h = 45;
     }
 }
 
 //SLOT//////
 cSlotHandler::cSlot::cSlot() {
-    focused = false;
-    contentRenderHelper.setCalCulatorText(&content);
+    isFocused = false;
     content.makeExpressionVariable('x');
+    calculatorText_RenderArea = SDL_Rect();
+    calculatorText_RenderContent = NULL;
+}
+cSlotHandler::cSlot::~cSlot() {
+    free();
 }
 void cSlotHandler::cSlot::setWindowMaster(cWindow* window) {
     background.setWindowMaster(window);
-    foreground.setWindowMaster(window);
+    emptyForeground.setWindowMaster(window);
 }
+
 void cSlotHandler::cSlot::updateRenderContent() {
-    contentRenderHelper.updateRenderContent();
+    //free the old texture
+    //create new texture, set new texture
+    if (calculatorText_RenderContent != NULL) {
+        calculatorText_RenderContent->free();
+    } 
+    calculatorText_RenderContent = CalculatorText_RenderHelper::createTextureFromCalculatorText(content);
 }
 void cSlotHandler::cSlot::showRenderContent() {
     background.render();
     if (content.isEmpty()) {
-        if (focused) {
-            foreground.fakeRender();
+        if (isFocused) {
+            emptyForeground.fakeRender();
         }
         else {
-            foreground.render();
+            emptyForeground.render();
         }
     }
     else {
-        contentRenderHelper.showRenderContent();
+        CalculatorText_RenderHelper::renderTextureWithArea(calculatorText_RenderArea, calculatorText_RenderContent);
+        //renderContent.fakeRender({ 0,0,0 });
     }
-    //background.fakeRender({0,0,0});
-    //foreground.fakeRender({ 0,0,0 });
 }
 void cSlotHandler::cSlot::clearRenderContent() {
     fakeRender();
@@ -297,5 +317,8 @@ void cSlotHandler::free() {
 }
 void cSlotHandler::cSlot::free() {
     background.free();
-    foreground.free();
+    emptyForeground.free();
+    if (calculatorText_RenderContent != NULL) {
+        calculatorText_RenderContent->free();
+    }
 }

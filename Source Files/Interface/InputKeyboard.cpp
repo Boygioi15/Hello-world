@@ -139,6 +139,7 @@ void cInputKeyboard::handleEvent(SDL_Event& e) {
 
 void cInputKeyboard::updateRenderContent() {
     // Implementation of updateRenderContent
+    //NOTHING HERE
 }
 
 void cInputKeyboard::showRenderContent() {

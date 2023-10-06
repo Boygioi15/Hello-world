@@ -69,6 +69,7 @@ private:
     vector<cButton> buttonList[MODE_TOTAL];
     int currentlySelectedButton;
 
+
     //shared button resources
     cImage clickEffectOutline;
     cImage clickEffectMask;
@@ -80,9 +81,7 @@ private:
     bool handleResizeButtonEvent(SDL_Event& e);
     //mouse down effect
     void playClickEffect();
-    
 };
-
 class cGraphDisplayer : public cInterface {
 public:
     cGraphDisplayer();

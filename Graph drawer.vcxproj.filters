@@ -16,6 +16,9 @@
     <Filter Include="Source Files\InterFace source file">
       <UniqueIdentifier>{8ec23f0a-f609-4d5c-b9c7-fcf8a357f57c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\CalculatorText">
+      <UniqueIdentifier>{cd6070d9-1431-4a17-9ae8-0f9e986bf83f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Source.cpp">
@@ -36,14 +39,14 @@
     <ClCompile Include="Source Files\SlotHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\CalculatorText\Expression.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="CalculatorText.cpp">
+      <Filter>Source Files\CalculatorText</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\CalculatorText\CalculatorText_RenderHelper.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CalculatorText</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\CalculatorText\CalculatorText.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Source Files\CalculatorText\Expression.cpp">
+      <Filter>Source Files\CalculatorText</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

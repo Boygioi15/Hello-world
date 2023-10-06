@@ -124,7 +124,7 @@ void cSlotHandler::createNewSlot(int pos) {
     //set Window Master
     cSlot* newSlot = new cSlot();
     //base case
-    newSlot->setWindowMaster(cSlotHandler::cComponent::m_Window);
+    newSlot->setWindowMaster(m_Window);
     ///load media
     newSlot->background.setTexture(&sharedSlotBackground);
     newSlot->emptyForeground.setTexture(&sharedSlotEmptyForeground);
@@ -140,6 +140,7 @@ void cSlotHandler::createNewSlot(int pos) {
             slotList.insert(slotList.begin() + pos, newSlot);
         }  
     }
+    graphDisplayer.createGraphAtPos(pos,newSlot);
     //set up
     repositionSlot(pos);
 }
@@ -147,6 +148,8 @@ void cSlotHandler::deleteSlot(int pos) {
     slotList[pos]->free();
     slotList.erase(slotList.begin() + pos);
     repositionSlot(pos);
+
+    graphDisplayer.eraseGraphAtPos(pos);
 }
 
 //FOCUS MECHANIC
@@ -172,16 +175,7 @@ void cSlotHandler::insertContentIntoFocusedSlot(std::string content) {
     slotList[currentlyFocusedSlot]->updateRenderContent();
     //cout << currentlyFocusedSlot << ": " << slotList[currentlyFocusedSlot]->content.getStringContent()<<endl;
     
-    //
-    Expression toBeSent = slotList[currentlyFocusedSlot]->content.getExpression();
-    toBeSent.preProcess();
-    //cout << toBeSent.getStringContent() << endl;
-    if (toBeSent.checkValidity()) {
-        toBeSent.buildComputingTree();
-        //cout << "Valid graph, ready to draw on canvas\n";
-        graphDisplayer.insertExpressionIntoList(toBeSent);
-        graphDisplayer.drawGraph();
-    }
+    graphDisplayer.updateGraphRenderContentAtPos(currentlyFocusedSlot);
 }
 void cSlotHandler::eraseContentOfFocusedSlot() {
     if (currentlyFocusedSlot == -1) {
@@ -190,14 +184,7 @@ void cSlotHandler::eraseContentOfFocusedSlot() {
     slotList[currentlyFocusedSlot]->content.eraseAtCursor();
     slotList[currentlyFocusedSlot]->updateRenderContent();
 
-    Expression toBeSent = slotList[currentlyFocusedSlot]->content.getExpression();
-    toBeSent.preProcess();
-    if (toBeSent.checkValidity()) {
-        toBeSent.buildComputingTree();
-        //cout << "Valid graph, ready to draw on canvas\n";
-        graphDisplayer.insertExpressionIntoList(toBeSent);
-        graphDisplayer.drawGraph();
-    }
+    graphDisplayer.updateGraphRenderContentAtPos(currentlyFocusedSlot);
 }
 
 void cSlotHandler::moveFocusedSlotCursorLeft() {
@@ -249,21 +236,21 @@ void cSlotHandler::repositionSlot(int start) {
 }
 
 //SLOT//////
-cSlotHandler::cSlot::cSlot() {
+cSlot::cSlot() {
     isFocused = false;
     content.makeExpressionVariable('x');
     calculatorText_RenderArea = SDL_Rect();
     calculatorText_RenderContent = NULL;
 }
-cSlotHandler::cSlot::~cSlot() {
+cSlot::~cSlot() {
     free();
 }
-void cSlotHandler::cSlot::setWindowMaster(cWindow* window) {
+void cSlot::setWindowMaster(cWindow* window) {
     background.setWindowMaster(window);
     emptyForeground.setWindowMaster(window);
 }
 
-void cSlotHandler::cSlot::updateRenderContent() {
+void cSlot::updateRenderContent() {
     //free the old texture
     //create new texture, set new texture
     if (calculatorText_RenderContent != NULL) {
@@ -271,7 +258,7 @@ void cSlotHandler::cSlot::updateRenderContent() {
     } 
     calculatorText_RenderContent = CalculatorText_RenderHelper::createTextureFromCalculatorText(content);
 }
-void cSlotHandler::cSlot::showRenderContent() {
+void cSlot::showRenderContent() {
     background.render();
     if (content.isEmpty()) {
         if (isFocused) {
@@ -286,10 +273,10 @@ void cSlotHandler::cSlot::showRenderContent() {
         //renderContent.fakeRender({ 0,0,0 });
     }
 }
-void cSlotHandler::cSlot::clearRenderContent() {
+void cSlot::clearRenderContent() {
     fakeRender();
 }
-cSlotHandler::SlotEventCode cSlotHandler::cSlot::handleEvent(SDL_Event& e) {
+SlotEventCode cSlot::handleEvent(SDL_Event& e) {
     //mouse hovering over clickButton
     if (quitButton.checkMouseInside()) {
         if (e.type == SDL_MOUSEBUTTONDOWN) {
@@ -315,7 +302,7 @@ void cSlotHandler::free() {
     sharedSlotBackground.free();
     sharedSlotEmptyForeground.free();
 }
-void cSlotHandler::cSlot::free() {
+void cSlot::free() {
     background.free();
     emptyForeground.free();
     if (calculatorText_RenderContent != NULL) {

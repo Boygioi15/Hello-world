@@ -50,10 +50,9 @@ int main(int argc, char** argv) {
 		graphDisplayer.clearRenderContent();
 		slotHandler.clearRenderContent();
 
-		inputKeyboard.updateRenderContent();
 		graphList.updateRenderContent();
-		graphDisplayer.updateRenderContent();
-		slotHandler.updateRenderContent();
+		//graphDisplayer.updateRenderContent();
+		//slotHandler.updateRenderContent();
 
 		graphDisplayer.showRenderContent();
 		graphList.showRenderContent();

@@ -1,5 +1,5 @@
-#ifndef INTERFACE
-#define INTERFACE
+#ifndef INTERFACE_H
+#define INTERFACE_H
 
 #include <SDL_FullLibraries.h>
 #include <GUI.h>
@@ -17,7 +17,7 @@ public:
 
     virtual bool loadMedia() = 0;
 
-    virtual void updateRenderContent() = 0;
+    virtual void updateRenderContent(){};
     virtual void showRenderContent() = 0;
     virtual void clearRenderContent();
 
@@ -25,6 +25,7 @@ public:
 protected:
     cImage background;
 };
+
 class cGraphList : public cInterface {
 public:
     cGraphList();
@@ -82,25 +83,33 @@ private:
     //mouse down effect
     void playClickEffect();
 };
+
+//forward declaration
+struct cSlot;
 class cGraphDisplayer : public cInterface {
 public:
     cGraphDisplayer();
 
     void setWindowMaster(cWindow* window);
     void setUp();
-    void handleEvent(SDL_Event& e);
-       
     bool loadMedia();
 
-    void updateRenderContent();
+    void handleEvent(SDL_Event& e);
+
+    void updateCanvasRenderContent();
+    void showCanvasRenderContent();
+
     void showRenderContent();
 
-    void insertExpressionIntoList(Expression expression);
-    void drawGraph();
+    //update graph 
+    void createGraphAtPos(int pos, cSlot* slotReference);
+    void eraseGraphAtPos(int pos);
+    void updateGraphRenderContentAtPos(int pos);
 
     void free();
 private:
-    Expression expression;
+    //hold information about the "canvas" that we will draw onto
+
     struct Canvas {
         Canvas();
 
@@ -112,9 +121,41 @@ private:
         double horizontalBoundarySize;
         double verticalBoundarySize;
     };
-    //canvas
     Canvas canvas;
     cLabel canvasInformation[3];//top-left ->bot-left->bot-right
+
+    struct cGraph : public cComponent{
+        cGraph();
+        ~cGraph();
+
+        void initRenderContent();
+        void updateDrawingPoint();
+
+        void updateRenderContent();
+        void showRenderContent();
+        void free();
+        
+        Canvas* canvasReference;
+        cSlot* slotReference;
+        cTexture renderContent;
+
+        int totalPoint;
+
+        vector<pair<double, double>> theoreticalPoints;
+        vector<SDL_Point> onScreenPoints;
+
+    private:
+        void calculateTheoreticalPoints(Expression &e);
+        void calculateOnScreenPoints();
+        void drawGraphFromPoints(Uint32* pixelData, int height, SDL_Window* window);
+
+        bool shouldNotBeRendered(SDL_Point& p);
+        bool isOutOfScreen(SDL_Point& p);
+    };
+    //pointer to avoid potential object destruction
+    vector<cGraph*> graphList;
+    //canvas
+ 
     bool isHoldingMouse;
 
     //event
@@ -126,23 +167,14 @@ private:
     int preMouseX;
     int preMouseY;
 
-    int totalPoint;
-    vector<pair<double,double>> theoreticalPoints;
-    vector<SDL_Point> onScreenPoints;
-    
     void zoomIn();
     void zoomOut();
     void slideCanvas(int deltaX, int deltaY);
 
+    //canvas cleaning output
     void cleanTrailingZeroOfDouble(string& number);
     bool thisNumberIsADouble(string& number);
 
-    void calculateTheoreticalPoints();
-    void calculateOnScreenPoints();
-    void drawGraphFromPoints();
-
-    bool shouldNotBeRendered(SDL_Point& p);
-    bool isOutOfScreen(SDL_Point &p);
 };
 //global
 extern cGraphList graphList;

@@ -6,6 +6,36 @@
 #include "CalculatorText.h"
 #include "CalculatorText_RenderHelper.h"
 
+
+enum SlotEventCode {
+    NOTHING,
+    MOUSE_HOVERING_OVER_QUITBUTTON,
+    DELETESLOT,
+    FOCUS,
+
+};
+struct cSlot : public cButton {
+    cSlot();
+    ~cSlot();
+    void setWindowMaster(cWindow* window);
+    SlotEventCode handleEvent(SDL_Event& e);
+
+    void updateRenderContent();
+    void showRenderContent();
+    void clearRenderContent();
+
+    void free();
+
+    bool isFocused;
+    cImage background, emptyForeground;
+    cTexture* calculatorText_RenderContent;
+    SDL_Rect calculatorText_RenderArea;
+
+    cButton quitButton;
+
+    CalculatorText content;
+};
+
 class cSlotHandler : public cInterface {
 public:
     cSlotHandler();
@@ -31,37 +61,9 @@ public:
 
     void free();
 private:
-    //slot related
-    enum SlotEventCode {
-        NOTHING,
-        MOUSE_HOVERING_OVER_QUITBUTTON,
-        DELETESLOT,
-        FOCUS,
-       
-    };
-    struct cSlot : public cButton {
-        cSlot();
-        ~cSlot();
-        void setWindowMaster(cWindow* window);
-        SlotEventCode handleEvent(SDL_Event& e);
-
-        void updateRenderContent();
-        void showRenderContent();
-        void clearRenderContent();
-
-        void free();
-
-        bool isFocused;
-        cImage background, emptyForeground;
-        cTexture* calculatorText_RenderContent;
-        SDL_Rect calculatorText_RenderArea;
-
-        cButton quitButton;
-
-        CalculatorText content;
-    };
-    CalculatorText_RenderHelper calculatorText_RenderHelper;
+    //slot related    
     vector<cSlot*> slotList;
+    CalculatorText_RenderHelper calculatorText_RenderHelper;
     cTexture sharedSlotBackground, sharedSlotEmptyForeground;
 
     cImage glowingQuitButton;

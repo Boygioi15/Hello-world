@@ -137,7 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source Files\CalculatorText\CalculatorText.cpp" />
+    <ClCompile Include="CalculatorText.cpp" />
     <ClCompile Include="Source Files\CalculatorText\Expression.cpp" />
     <ClCompile Include="Source Files\CalculatorText\CalculatorText_RenderHelper.cpp" />
     <ClCompile Include="Source Files\Interface\GraphDisplayer.cpp" />
